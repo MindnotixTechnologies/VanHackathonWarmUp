@@ -3,10 +3,22 @@
 
     <group android:checkableBehavior="single">
 
+        <item
+            android:id="@+id/action_home"
+            android:icon="@mipmap/home"
+            android:title="@string/home" />
     </group>
 
 
-    <item
-        android:id="@+id/action_leave"
-        android:title="@string/leave" />
+    <item android:title="@string/sign_in">
+        <menu>
+
+            <item
+                android:id="@+id/action_sign_out"
+                android:icon="@mipmap/arrow_forward"
+                android:title="@string/sign_out" />
+        </menu>
+    </item>
+
+
 </menu>

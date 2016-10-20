@@ -3,7 +3,6 @@ package todo.list.warmup.act;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import todo.list.warmup.R;
+import todo.list.warmup.Snack;
 import todo.list.warmup.adpt.ToDoItemsAdapter;
 import todo.list.warmup.bean.ToDoItem;
 import todo.list.warmup.dia.Dialog;
@@ -107,11 +107,10 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
                                 innerDialog.setPositiveButton(android.R.string.ok, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        item.setDescription(innerDialog.getEdit().getText().toString());
+                                        item.setDescription(innerDialog.getEditText().getText().toString());
 
                                         adapter.update(position, item);
-                                        Snackbar.make(view, R.string.item_updated, Snackbar.LENGTH_LONG)
-                                                .setAction(android.R.string.ok, null).show();
+                                        Snack.show(floatingActionButton, R.string.item_updated);
 
                                     }
                                 });
@@ -145,19 +144,17 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(final View view) {
         switch (view.getId()) {
             case R.id.fab:
-                final Dialog dialog = new Dialog(ItemActivity.this);
-                dialog.setTitle(R.string.add).setTitle(R.string.want_new_item);
-                dialog.setEdit(getString(R.string.item_hint), null);
+                final Dialog dialog = new Dialog(ItemActivity.this)
+                        .setTitle(R.string.add).setMessage(R.string.want_new_item)
+                        .setEdit(getString(R.string.item_hint), null);
                 dialog.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        adapter.add(new ToDoItem(dialog.getEdit().getText().toString()));
-                        Snackbar.make(view, R.string.item_created, Snackbar.LENGTH_LONG)
-                                .setAction(android.R.string.ok, null).show();
+                        adapter.add(new ToDoItem(dialog.getEditText().getText().toString()));
+                        Snack.show(floatingActionButton, R.string.item_created);
 
                     }
-                });
-                dialog.setNegativeButton(R.string.cancel).show();
+                }).setNegativeButton(R.string.cancel).show();
         }
     }
 

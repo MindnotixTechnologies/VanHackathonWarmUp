@@ -7,7 +7,10 @@
     <color name="primary_light">#B2DFDB</color>
     <color name="accent">#268169</color>
     <color name="primary_text">#212121</color>
+    <color name="third_text">#3b3a3a</color>
     <color name="secondary_text">#757575</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
+    <color name="freeze">#67d1eae6</color>
+    <color name="sheet">#efefef</color>
 </resources>

@@ -20,15 +20,16 @@ public class Dialog extends MaterialDialog {
 
     private Context context;
 
-    private ListView optionsListView;
-    private EditText edit;
+    private ListView lvOptions;
+    private EditText edDescription;
+    private TextView tvTitle;
+    private TextView tvMessage;
 
     public Dialog(Context context) {
         super(context);
         this.context = context;
         setCanceledOnTouchOutside(true);
     }
-
 
     public Dialog setOptions(String... options) {
         final ArrayAdapter<String> arrayAdapter
@@ -38,17 +39,17 @@ public class Dialog extends MaterialDialog {
             arrayAdapter.add(options[i]);
         }
 
-        optionsListView = (ListView) LayoutInflater.from(context).inflate(R.layout.options, null, false);
+        lvOptions = (ListView) LayoutInflater.from(context).inflate(R.layout.options, null, false);
 
-        optionsListView.setAdapter(arrayAdapter);
-        setContentView(optionsListView);
+        lvOptions.setAdapter(arrayAdapter);
+        setContentView(lvOptions);
 
         return this;
     }
 
     public Dialog setOnItemClickListener(final AdapterView.OnItemClickListener listener) {
-        if (optionsListView != null)
-            optionsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        if (lvOptions != null)
+            lvOptions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     dismiss();
@@ -65,11 +66,14 @@ public class Dialog extends MaterialDialog {
     public Dialog setEdit(String hint, String text) {
         View v = LayoutInflater.from(context).inflate(R.layout.material_edit_dialog, null, false);
 
-        ((TextView) v.findViewById(R.id.title)).setText(R.string.update);
-        ((TextView) v.findViewById(R.id.message)).setText(R.string.want_update_item);
-        edit = (EditText) v.findViewById(R.id.edit);
-        edit.setText(text);
-        edit.setHint(hint);
+        tvTitle = (TextView) v.findViewById(R.id.title);
+        tvMessage = (TextView) v.findViewById(R.id.message);
+
+        tvTitle.setText(titleStr);
+        tvMessage.setText(messageStr);
+        edDescription = (EditText) v.findViewById(R.id.edit);
+        edDescription.setText(text);
+        edDescription.setHint(hint);
 
         setView(v);
 
@@ -77,9 +81,67 @@ public class Dialog extends MaterialDialog {
     }
 
 
+    private String titleStr;
+
     @Override
-    public MaterialDialog setPositiveButton(int resId, final View.OnClickListener listener) {
-        return super.setPositiveButton(resId, new View.OnClickListener() {
+    public Dialog setTitle(int resId) {
+        return setTitle(context.getString(resId));
+    }
+
+
+    @Override
+    public Dialog setTitle(CharSequence s) {
+        titleStr = s.toString();
+
+        if (tvTitle != null) {
+            tvTitle.setText(titleStr);
+        }
+
+        super.setTitle(s);
+
+        return this;
+    }
+
+    private String messageStr;
+
+
+    @Override
+    public Dialog setMessage(int resId) {
+        return setMessage(context.getString(resId));
+    }
+
+    @Override
+    public Dialog setMessage(CharSequence s) {
+        messageStr = s.toString();
+
+        if (tvMessage != null) {
+            tvMessage.setText(messageStr);
+        }
+
+        super.setMessage(s);
+
+        return this;
+    }
+
+    @Override
+    public Dialog setPositiveButton(int resId, final View.OnClickListener listener) {
+        return setPositiveButton(context.getString(resId), listener);
+    }
+
+
+    public Dialog setPositiveButton(int res) {
+        return setPositiveButton(res, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismiss();
+            }
+        });
+    }
+
+
+    @Override
+    public Dialog setPositiveButton(String text, final View.OnClickListener listener) {
+        super.setPositiveButton(text, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (listener != null)
@@ -88,12 +150,30 @@ public class Dialog extends MaterialDialog {
                 dismiss();
             }
         });
+
+        return this;
+    }
+
+
+
+    @Override
+    public Dialog setNegativeButton(int resId, final View.OnClickListener listener) {
+        return setNegativeButton(context.getString(resId), listener);
+    }
+
+    public Dialog setNegativeButton(int res) {
+        return setNegativeButton(res, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismiss();
+            }
+        });
     }
 
 
     @Override
-    public MaterialDialog setPositiveButton(String text, final View.OnClickListener listener) {
-        return super.setPositiveButton(text, new View.OnClickListener() {
+    public Dialog setNegativeButton(String text, final View.OnClickListener listener) {
+        super.setNegativeButton(text, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (listener != null)
@@ -102,56 +182,17 @@ public class Dialog extends MaterialDialog {
                 dismiss();
             }
         });
+
+        return this;
     }
 
-
-    public MaterialDialog setPositiveButton(int res) {
-        return super.setPositiveButton(res, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dismiss();
-            }
-        });
-    }
-
-    @Override
-    public MaterialDialog setNegativeButton(int resId, final View.OnClickListener listener) {
-        return super.setNegativeButton(resId, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (listener != null)
-                    listener.onClick(view);
-
-                dismiss();
-            }
-        });
+    public EditText getEditText() {
+        return edDescription;
     }
 
 
     @Override
-    public MaterialDialog setNegativeButton(String text, final View.OnClickListener listener) {
-        return super.setNegativeButton(text, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (listener != null)
-                    listener.onClick(view);
-
-                dismiss();
-            }
-        });
-    }
-
-    public MaterialDialog setNegativeButton(int res) {
-        return super.setNegativeButton(res, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dismiss();
-            }
-        });
-    }
-
-
-    public EditText getEdit() {
-        return edit;
+    public void show() {
+        super.show();
     }
 }

@@ -34,7 +34,7 @@
             style="@style/wrap_wrap"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@mipmap/ic_add_white_24dp" />
+            app:srcCompat="@mipmap/add" />
 
     </android.support.design.widget.CoordinatorLayout>
 

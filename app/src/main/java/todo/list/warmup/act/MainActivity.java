@@ -5,7 +5,8 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,28 +15,31 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import me.drakeet.materialdialog.MaterialDialog;
 import todo.list.warmup.R;
+import todo.list.warmup.Snack;
 import todo.list.warmup.adpt.ToDoListAdapter;
 import todo.list.warmup.bean.ToDoList;
 import todo.list.warmup.dia.Dialog;
+import todo.list.warmup.utils.Utils;
 import todo.list.warmup.view.DividerItemDecoration;
 
 import static todo.list.warmup.R.id.fab;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     private ActionBarDrawerToggle toggle;
     private DrawerLayout drawer;
@@ -43,34 +47,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FloatingActionButton floatingActionButton;
     private RecyclerView recyclerView;
     private ToDoListAdapter adapter;
+    private NavigationView navigationView;
 
+    private TextView tvName;
+    private TextView tvEmail;
+    private TextView tvUID;
+    private ImageView imAvatar;
 
     private FirebaseAuth auth;
-    private FirebaseAuth.AuthStateListener authListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_layout);
 
-
         bindViews();
         customConfiguration();
         bindListeners();
         setup();
-
+        singInSetup();
 
         for (int i = 1; i <= 5; i++) {
             adapter.add(new ToDoList("List Example " + i));
         }
-
     }
 
     private void bindViews() {
         this.toolbar = (Toolbar) findViewById(R.id.toolbar);
-        this.floatingActionButton = (FloatingActionButton) findViewById(fab);
+        this.floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
         this.recyclerView = (RecyclerView) findViewById(R.id.recycle_view);
         this.drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        this.navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        this.tvName = (TextView) navigationView.getHeaderView(0).findViewById(R.id.name);
+        this.tvEmail = (TextView) navigationView.getHeaderView(0).findViewById(R.id.email);
+        this.tvUID = (TextView) navigationView.getHeaderView(0).findViewById(R.id.uid);
+        this.imAvatar = (ImageView) navigationView.getHeaderView(0).findViewById(R.id.avatar);
     }
 
     private void customConfiguration() {
@@ -91,30 +103,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+
+        navigationView.setCheckedItem(R.id.action_home);
     }
 
     private void bindListeners() {
         floatingActionButton.setOnClickListener(this);
-
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     private void setup() {
-        auth = FirebaseAuth.getInstance();
-        authListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    Toast.makeText(MainActivity.this,user.getUid(),Toast.LENGTH_LONG).show();
-                    Log.d("AUTH", "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d("AUTH", "onAuthStateChanged:signed_out");
-                }
-            }
-        };
-
         this.adapter = new ToDoListAdapter(this);
         recyclerView.setAdapter(adapter);
 
@@ -158,20 +156,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+
+    private void singInSetup() {
+        this.auth = FirebaseAuth.getInstance();
+    }
+
     @Override
     public void onClick(final View view) {
         switch (view.getId()) {
-            case R.id.fab:
+            case fab:
                 final Dialog dialog = new Dialog(MainActivity.this);
                 dialog.setTitle(R.string.add).setMessage(R.string.want_new_list);
                 dialog.setEdit(getString(R.string.list_hint), null);
                 dialog.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        adapter.add(new ToDoList(dialog.getEdit().getText().toString()));
-                        Snackbar.make(view, R.string.list_created, Snackbar.LENGTH_LONG)
-                                .setAction(android.R.string.ok, null).show();
+                        adapter.add(new ToDoList(dialog.getEditText().getText().toString()));
 
+                        Snack.show(floatingActionButton, R.string.list_created);
 
                     }
                 });
@@ -219,19 +221,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onStart() {
         super.onStart();
+
         auth.addAuthStateListener(authListener);
-
-
-        auth.signInAnonymously()
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (!task.isSuccessful())
-                            Toast.makeText(MainActivity.this, getString(R.string.auth_fail),
-                                    Toast.LENGTH_SHORT).show();
-                    }
-                });
-
     }
 
     @Override
@@ -251,4 +242,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             super.onBackPressed();
         }
     }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        return onDrawerMenuSelected(item.getItemId());
+    }
+
+    private boolean onDrawerMenuSelected(int resId) {
+        switch (resId) {
+            case R.id.action_home:
+                break;
+
+            case R.id.action_sign_out:
+                final Dialog dialog = new Dialog(MainActivity.this);
+                dialog.setTitle(R.string.sign_out).setMessage(R.string.want_sign_out);
+                dialog.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        auth.signOut();
+                        startActivity(new Intent(MainActivity.this, SignInActivity.class));
+                        finish();
+                    }
+                });
+                dialog.setNegativeButton(R.string.cancel).show();
+
+                break;
+        }
+
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+
+    private FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
+        @Override
+        public void onAuthStateChanged(@NonNull FirebaseAuth auth) {
+            FirebaseUser user = auth.getCurrentUser();
+
+            if (user != null) {
+
+
+                tvName.setText(Utils.coalesce(user.getDisplayName(), getString(R.string.unknow)));
+                tvEmail.setText(Utils.coalesce(user.getEmail(), getString(R.string.unknow)));
+                tvUID.setText(user.getUid());
+
+
+                Transformation transformation = new RoundedTransformationBuilder()
+                        .borderColor(ContextCompat.getColor(MainActivity.this, R.color.freeze))
+                        .borderWidthDp(3)
+                        .cornerRadiusDp(32)
+                        .oval(false)
+                        .build();
+
+                Picasso.with(MainActivity.this).load(user.getPhotoUrl()).fit()
+                        .transform(transformation).into(imAvatar);
+
+               // Snack.show(floatingActionButton, getString(R.string.uid_message, FirebaseAuth.getInstance().getCurrentUser().getUid()));
+            }
+        }
+    };
+
 }
