@@ -206,8 +206,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         toggle.syncState();
-
-        //dfdf
     }
 
 
