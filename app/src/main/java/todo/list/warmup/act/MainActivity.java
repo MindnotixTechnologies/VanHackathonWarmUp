@@ -3,6 +3,7 @@ package todo.list.warmup.act;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
@@ -12,9 +13,17 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import me.drakeet.materialdialog.MaterialDialog;
 import todo.list.warmup.R;
@@ -34,10 +43,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RecyclerView recyclerView;
     private ToDoListAdapter adapter;
 
+
+    private FirebaseAuth auth;
+    private FirebaseAuth.AuthStateListener authListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_layout);
+
 
         bindViews();
         customConfiguration();
@@ -84,6 +98,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setup() {
+        auth = FirebaseAuth.getInstance();
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Toast.makeText(MainActivity.this,user.getUid(),Toast.LENGTH_LONG).show();
+                    Log.d("AUTH", "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d("AUTH", "onAuthStateChanged:signed_out");
+                }
+            }
+        };
+
         this.adapter = new ToDoListAdapter(this);
         recyclerView.setAdapter(adapter);
 
@@ -183,6 +213,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onConfigurationChanged(newConfig);
         toggle.onConfigurationChanged(newConfig);
     }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        auth.addAuthStateListener(authListener);
+
+
+        auth.signInAnonymously()
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (!task.isSuccessful())
+                            Toast.makeText(MainActivity.this, getString(R.string.auth_fail),
+                                    Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (authListener != null) {
+            auth.removeAuthStateListener(authListener);
+        }
+    }
+
 
 
 }
