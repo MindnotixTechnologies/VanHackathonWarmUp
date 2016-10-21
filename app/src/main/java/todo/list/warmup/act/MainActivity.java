@@ -27,14 +27,17 @@ import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import java.util.List;
+
 import me.drakeet.materialdialog.MaterialDialog;
 import todo.list.warmup.R;
-import todo.list.warmup.Snack;
 import todo.list.warmup.adpt.ToDoListAdapter;
+import todo.list.warmup.api.RestList;
 import todo.list.warmup.bean.ToDoList;
 import todo.list.warmup.dia.Dialog;
 import todo.list.warmup.utils.Utils;
 import todo.list.warmup.view.DividerItemDecoration;
+import todo.list.warmup.view.Snack;
 
 import static todo.list.warmup.R.id.fab;
 
@@ -67,9 +70,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setup();
         singInSetup();
 
-        for (int i = 1; i <= 5; i++) {
+     /*   for (int i = 1; i <= 5; i++) {
             adapter.add(new ToDoList("List Example " + i));
-        }
+        }*/
     }
 
     private void bindViews() {
@@ -142,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         dialog.dismiss();
                         adapter.remove(position);
 
+                        RestList.delete(adapter.getItem(position).getId());
                     }
                 }).setNegativeButton(R.string.cancel, new View.OnClickListener() {
                     @Override
@@ -171,10 +175,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dialog.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        adapter.add(new ToDoList(dialog.getEditText().getText().toString()));
 
-                        Snack.show(floatingActionButton, R.string.list_created);
-
+                        RestList.newList(dialog.getEditText().getText().toString(), new RestList.IOnNewOne() {
+                            @Override
+                            public void onNewOne(ToDoList list) {
+                                adapter.add(list);
+                                Snack.show(floatingActionButton, R.string.list_created);
+                            }
+                        });
                     }
                 });
                 dialog.setNegativeButton(R.string.cancel).show();
@@ -297,7 +305,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Picasso.with(MainActivity.this).load(user.getPhotoUrl()).fit()
                         .transform(transformation).into(imAvatar);
 
-               // Snack.show(floatingActionButton, getString(R.string.uid_message, FirebaseAuth.getInstance().getCurrentUser().getUid()));
+                // Snack.show(floatingActionButton, getString(R.string.uid_message, FirebaseAuth.getInstance().getCurrentUser().getUid()));
+
+                //Refresh Lists
+                RestList.getAll(new RestList.IOnGetAll() {
+                    @Override
+                    public void onGetAll(List<ToDoList> list) {
+                        adapter.addAll(list);
+                    }
+                });
             }
         }
     };

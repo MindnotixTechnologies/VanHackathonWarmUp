@@ -6,7 +6,7 @@ package todo.list.warmup.bean;
 
 public class ToDoList {
     private int id;
-    private String name;
+    private String title;
 
     public int getId() {
         return id;
@@ -16,18 +16,20 @@ public class ToDoList {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
+    public ToDoList(String title) {
+        this.title = title;
+    }
 
-
-
-    public ToDoList(String name) {
-        this.name = name;
+    public ToDoList(int id, String title) {
+        this.id = id;
+        this.title = title;
     }
 }

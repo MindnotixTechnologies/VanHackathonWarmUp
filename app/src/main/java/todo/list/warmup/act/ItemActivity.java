@@ -3,6 +3,7 @@ package todo.list.warmup.act;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,12 +14,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 
+import java.util.List;
+
 import todo.list.warmup.R;
-import todo.list.warmup.Snack;
 import todo.list.warmup.adpt.ToDoItemsAdapter;
+import todo.list.warmup.api.RestItem;
 import todo.list.warmup.bean.ToDoItem;
 import todo.list.warmup.dia.Dialog;
 import todo.list.warmup.view.DividerItemDecoration;
+import todo.list.warmup.view.Snack;
 
 import static todo.list.warmup.R.id.fab;
 import static todo.list.warmup.R.string.update;
@@ -48,10 +52,7 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
         bindListeners();
         setup();
 
-        for (int i = 1; i <= 3; i++) {
-            adapter.add(new ToDoItem("Item Example " + i));
-        }
-
+        refreshItems();
     }
 
     private void bindViews() {
@@ -71,7 +72,7 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
-        selectListId = (int) getIntent().getExtras().get(SELECTED_LIST_ID);
+        selectListId = getIntent().getExtras().getInt(SELECTED_LIST_ID);
 
         setTitle(getString(R.string.items_title, selectListId));
 
@@ -97,7 +98,7 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
                 dialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                     @Override
-                    public void onItemClick(AdapterView<?> adapterView, final View view, int i, long l) {
+                    public void onItemClick(final AdapterView<?> adapterView, final View view, int i, long l) {
                         final Dialog innerDialog = new Dialog(ItemActivity.this);
 
                         switch (i) {
@@ -107,7 +108,13 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
                                 innerDialog.setPositiveButton(android.R.string.ok, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+
+                                        ToDoItem item = adapter.getItem(position);
                                         item.setDescription(innerDialog.getEditText().getText().toString());
+
+                                        RestItem.update(item);
+
+                                        item.setDescription(item.getDescription());
 
                                         adapter.update(position, item);
                                         Snack.show(floatingActionButton, R.string.item_updated);
@@ -123,6 +130,7 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
                                 innerDialog.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        RestItem.delete(adapter.getItem(position).getId());
                                         adapter.remove(position);
                                     }
                                 });
@@ -150,9 +158,14 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
                 dialog.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        adapter.add(new ToDoItem(dialog.getEditText().getText().toString()));
-                        Snack.show(floatingActionButton, R.string.item_created);
 
+                        RestItem.newItem(selectListId, dialog.getEditText().getText().toString(), new RestItem.IOnNewOne() {
+                            @Override
+                            public void onNewOne(ToDoItem one) {
+                                adapter.add(one);
+                                Snack.show(floatingActionButton, R.string.item_created);
+                            }
+                        });
                     }
                 }).setNegativeButton(R.string.cancel).show();
         }
@@ -170,8 +183,18 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.action_settings:
                 return true;
             default:
-                return super.onOptionsItemSelected(item);
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
         }
+    }
+
+    private void refreshItems(){
+        RestItem.getAll(selectListId,new RestItem.IOnGetAll() {
+            @Override
+            public void onGetAll(List<ToDoItem> all) {
+                adapter.addAll(all);
+            }
+        });
     }
 
 }

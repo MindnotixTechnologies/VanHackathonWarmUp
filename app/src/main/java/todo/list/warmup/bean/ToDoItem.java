@@ -8,6 +8,7 @@ public class ToDoItem {
 
     private int id = 0;
     private String description;
+    private int list_id;
     private boolean checked = false;
 
 
@@ -40,4 +41,11 @@ public class ToDoItem {
     }
 
 
+    public int getList_id() {
+        return list_id;
+    }
+
+    public void setList_id(int list_id) {
+        this.list_id = list_id;
+    }
 }

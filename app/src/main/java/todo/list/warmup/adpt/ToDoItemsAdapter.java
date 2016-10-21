@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import todo.list.warmup.R;
+import todo.list.warmup.api.RestItem;
 import todo.list.warmup.bean.ToDoItem;
 
 /**
@@ -53,6 +54,8 @@ public class ToDoItemsAdapter extends RecyclerView.Adapter<ToDoItemsAdapter.View
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 data.get(position).setChecked(b);
                 notifyItemChanged(position);
+
+                RestItem.check(data.get(position).getId());
             }
         });
     }
@@ -68,7 +71,6 @@ public class ToDoItemsAdapter extends RecyclerView.Adapter<ToDoItemsAdapter.View
     }
 
     public void add(ToDoItem item) {
-        item.setId(data.size() + 1);
         this.data.add(item);
 
         notifyItemInserted(getItemCount() - 1);
@@ -102,4 +104,8 @@ public class ToDoItemsAdapter extends RecyclerView.Adapter<ToDoItemsAdapter.View
     }
 
 
+    public void addAll(List<ToDoItem> list) {
+        this.data.addAll(list);
+        notifyItemRangeInserted(0,getItemCount());
+    }
 }

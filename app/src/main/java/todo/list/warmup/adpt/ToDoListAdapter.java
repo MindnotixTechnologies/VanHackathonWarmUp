@@ -42,7 +42,7 @@ public class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, int position) {
         ToDoList list = data.get(position);
 
-        holder.title.setText(list.getId() + "   " + list.getName());
+        holder.title.setText(list.getId() + "   " + list.getTitle());
     }
 
     @Override
@@ -56,10 +56,14 @@ public class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHo
     }
 
     public void add(ToDoList list) {
-        list.setId(data.size() + 1);
         this.data.add(list);
 
         notifyItemInserted(getItemCount() - 1);
+    }
+
+    public void addAll(List<ToDoList> list) {
+        this.data.addAll(list);
+        notifyItemRangeInserted(0,getItemCount());
     }
 
     public void remove(int position) {

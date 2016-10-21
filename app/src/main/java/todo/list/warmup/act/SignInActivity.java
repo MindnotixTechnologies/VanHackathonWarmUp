@@ -23,9 +23,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import todo.list.warmup.R;
-import todo.list.warmup.Snack;
 import todo.list.warmup.anim.Animate;
+import todo.list.warmup.api.RestUser;
 import todo.list.warmup.val.Validation;
+import todo.list.warmup.view.Snack;
 
 /**
  * Created by jrvansuita on 20/10/16.
@@ -64,9 +65,20 @@ public class SignInActivity extends FragmentActivity implements View.OnClickList
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+                final FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    openNextActivity();
+                    RestUser.get().newUser(user.getUid()).setOnSucess(new RestUser.OnSucess() {
+                        @Override
+                        public void onSucess(String s) {
+                            openNextActivity();
+                        }
+                    }).setOnError(new RestUser.OnError() {
+                        @Override
+                        public void onError(String s) {
+                            showError(s);
+                            auth.signOut();
+                        }
+                    });
                 } else {
                     // User is signed out ou never did the sign up.
                 }
@@ -179,8 +191,7 @@ public class SignInActivity extends FragmentActivity implements View.OnClickList
                 auth.signInWithCredential(credential)
                         .addOnCompleteListener(this, defaultTask);
             } else {
-                hideProgress();
-                Snack.show(edEmail, result.getStatus().getStatusMessage());
+                showError(result.getStatus().getStatusMessage());
             }
         }
     }
@@ -188,14 +199,15 @@ public class SignInActivity extends FragmentActivity implements View.OnClickList
     private OnCompleteListener<AuthResult> defaultTask = new OnCompleteListener<AuthResult>() {
         @Override
         public void onComplete(@NonNull Task<AuthResult> task) {
-            hideProgress();
-
-            if (!task.isSuccessful()) {
-                Snack.show(edEmail, task.getException().getMessage());
-            }
-
+            if (!task.isSuccessful())
+                showError(task.getException().getMessage());
         }
     };
+
+    private void showError(String error) {
+        hideProgress();
+        Snack.show(edEmail, error);
+    }
 
     private void showProgress() {
         Animate.builder(pbProgress, R.anim.fab_in).start(true);
@@ -213,8 +225,7 @@ public class SignInActivity extends FragmentActivity implements View.OnClickList
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        hideProgress();
-        Snack.show(edEmail, R.string.conn_failed);
+        showError(getString(R.string.conn_failed));
     }
 
 
