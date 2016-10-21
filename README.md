@@ -3,7 +3,7 @@ This project is a to-do list sample app and was created to test Google Firebase 
 
 
  > *This is app was created in 2 days and will not be continued.
- > Some screenshots [here](/screenshots/), and the apk [here](/apk/).*
+ > You can check the [screenshots](/screenshots/) and the [apk file](/apk/).*
 
 
 ### Developed knowledges.
