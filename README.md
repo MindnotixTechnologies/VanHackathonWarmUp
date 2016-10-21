@@ -27,4 +27,5 @@ This project is a to-do list sample app and was created to test Google Firebase 
  * [Material](https://www.materialpalette.com)
 
 
-This is app was created in 2 days and will not be continued.
+ > *This is app was created in 2 days and will not be continued.
+ > [Some screenshots here.](/screenshots/)*
