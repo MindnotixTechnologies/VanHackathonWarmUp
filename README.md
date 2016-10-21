@@ -1,7 +1,7 @@
 # VanHackathonWarmUp
 This project is a to-do list sample app and was created to test Google Firebase Auth and our REST API.
 
- ### Developed knowledges.
+### Developed knowledges.
  * Learned how to use Retrofit library.
  * Learned how to integrate Firebase auth.
  * Learned how to use Firebase realtime database.
