@@ -2,6 +2,9 @@
 This project is a to-do list sample app and was created to test Google Firebase Auth and our REST API.
 
 
+ > *This is app was created in 2 days and will not be continued.
+ > [Some screenshots here.](/screenshots/)*
+
 
 ### Developed knowledges.
  * Learned how to use Retrofit library.
@@ -22,12 +25,9 @@ This project is a to-do list sample app and was created to test Google Firebase 
  * [Retrofit](http://square.github.io/retrofit/)
  * [Gson](https://github.com/google/gson)
 
-###Assets.
+ ### Assets.
  * [Icons](https://design.google.com/icons/#ic_arrow_forward)
  * [Material](https://www.materialpalette.com)
 
 
 
-
- > *This is app was created in 2 days and will not be continued.
- > [Some screenshots here.](/screenshots/)*
