@@ -1,5 +1,7 @@
-# VanHackathonWarmUp
+# VanHackathonWarmUp - Team //TODO:
 This project is a to-do list sample app and was created to test Google Firebase Auth and our REST API.
+
+
 
 ### Developed knowledges.
  * Learned how to use Retrofit library.
@@ -7,6 +9,10 @@ This project is a to-do list sample app and was created to test Google Firebase 
  * Learned how to use Firebase realtime database.
  * Got more experience using not common http protocols.
  
+### REST API (Developed by @taylorrf).
+ * [Source Code](https://github.com/taylorrf/todo_api)
+ * [Spec] (https://todo-api-warmup.herokuapp.com/)
+
 ### Project depencendies. 
  * [Google Firebase](https://firebase.google.com/)
  * [Material Dialog](https://github.com/drakeet/MaterialDialog)
@@ -15,9 +21,10 @@ This project is a to-do list sample app and was created to test Google Firebase 
  * [Rounded Image View] (https://github.com/vinc3m1/RoundedImageView)
  * [Retrofit](http://square.github.io/retrofit/)
  * [Gson](https://github.com/google/gson)
- 
- 
- 
+
+###Assets.
+ * [Icons](https://design.google.com/icons/#ic_arrow_forward)
+ * [Material](https://www.materialpalette.com)
 
 
 This is app was created in 2 days and will not be continued.
