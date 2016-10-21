@@ -25,7 +25,7 @@ This project is a to-do list sample app and was created to test Google Firebase 
  * [Retrofit](http://square.github.io/retrofit/)
  * [Gson](https://github.com/google/gson)
 
- ### Assets.
+### Assets.
  * [Icons](https://design.google.com/icons/#ic_arrow_forward)
  * [Material](https://www.materialpalette.com)
 
